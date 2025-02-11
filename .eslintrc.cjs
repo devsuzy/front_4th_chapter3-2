@@ -33,7 +33,7 @@ module.exports = {
         'newlines-between': 'always',
       },
     ],
-    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    'prettier/prettier': ['error', { endOfLine: 'auto' }, { useTabs: false }],
   },
   globals: {
     Set: true,

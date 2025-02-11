@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   DeleteIcon,
   EditIcon,
+  RepeatIcon,
 } from '@chakra-ui/icons';
 import {
   Alert,
@@ -69,6 +70,17 @@ const notificationOptions = [
   { value: 1440, label: '1일 전' },
 ];
 
+const getRepeatUnitText = (type: RepeatType) => {
+  const unitMap = {
+    daily: '일',
+    weekly: '주',
+    monthly: '개월',
+    yearly: '년',
+    none: '',
+  };
+  return unitMap[type] || '';
+};
+
 function App() {
   const {
     title,
@@ -103,8 +115,9 @@ function App() {
     editEvent,
   } = useEventForm();
 
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
+  const { events, saveEvent, deleteEvent, saveRepeatEvent } = useEventOperations(
+    Boolean(editingEvent),
+    () => setEditingEvent(null)
   );
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
@@ -155,13 +168,33 @@ function App() {
       notificationTime,
     };
 
-    const overlapping = findOverlappingEvents(eventData, events);
-    if (overlapping.length > 0) {
-      setOverlappingEvents(overlapping);
-      setIsOverlapDialogOpen(true);
-    } else {
-      await saveEvent(eventData);
+    if (isRepeating && !editingEvent) {
+      await saveRepeatEvent(eventData);
       resetForm();
+    } else {
+      const overlapping = findOverlappingEvents(eventData, events);
+      if (overlapping.length > 0) {
+        setOverlappingEvents(overlapping);
+        setIsOverlapDialogOpen(true);
+      } else {
+        await saveEvent(eventData);
+        resetForm();
+      }
+    }
+  };
+
+  const renderRepeatIcon = (event: Event) => {
+    if (event.repeat.type !== 'none') {
+      return (
+        <Tooltip
+          hasArrow
+          label={`${event.repeat.interval}${getRepeatUnitText(event.repeat.type)}마다 반복 ${
+            event.repeat.endDate ? `${event.repeat.endDate}까지` : ''
+          }`}
+        >
+          <RepeatIcon />
+        </Tooltip>
+      );
     }
   };
 
@@ -201,6 +234,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {renderRepeatIcon(event)}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -270,6 +304,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
+                                  {renderRepeatIcon(event)}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -396,9 +431,10 @@ function App() {
                   <Input
                     type="number"
                     value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                    onChange={(e) => setRepeatInterval(Math.max(1, parseInt(e.target.value)))}
                     min={1}
                   />
+                  <span>{getRepeatUnitText(repeatType)}마다</span>
                 </FormControl>
                 <FormControl>
                   <FormLabel>반복 종료일</FormLabel>
@@ -481,10 +517,7 @@ function App() {
                     {event.repeat.type !== 'none' && (
                       <Text>
                         반복: {event.repeat.interval}
-                        {event.repeat.type === 'daily' && '일'}
-                        {event.repeat.type === 'weekly' && '주'}
-                        {event.repeat.type === 'monthly' && '월'}
-                        {event.repeat.type === 'yearly' && '년'}
+                        {getRepeatUnitText(event.repeat.type)}
                         마다
                         {event.repeat.endDate && ` (종료: ${event.repeat.endDate})`}
                       </Text>
