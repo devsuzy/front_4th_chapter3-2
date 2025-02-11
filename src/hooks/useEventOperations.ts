@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { createRepeatEvents } from '../utils/createRepeatEvents';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -108,10 +109,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const saveRepeatEvent = async (eventData: EventForm) => {
     try {
+      const repeatedEvents = createRepeatEvents(eventData);
       const response = await fetch('/api/events-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ events: [eventData] }),
+        body: JSON.stringify({ events: repeatedEvents }),
       });
 
       if (!response.ok) {
