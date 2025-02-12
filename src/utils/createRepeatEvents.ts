@@ -10,9 +10,8 @@ export const createRepeatEvents = (eventData: EventForm) => {
 
   const { type, interval, endDate } = eventData.repeat;
   const startDate = new Date(eventData.date);
-  const repeatEndDate = endDate ? new Date(endDate) : null;
+  const repeatEndDate = endDate ? new Date(endDate) : new Date('2025-06-30');
   let currentDate = new Date(startDate);
-
   while (!repeatEndDate || currentDate <= repeatEndDate) {
     repeatedEvents.push({
       ...eventData,
