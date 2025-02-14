@@ -50,8 +50,6 @@ export const createRepeatEvents = (eventData: EventForm) => {
       case 'monthly':
         // eslint-disable-next-line no-case-declarations
         const prevDay = currentDate.getDate();
-
-        currentDate.setDate(1);
         currentDate.setMonth(currentDate.getMonth() + interval);
 
         // eslint-disable-next-line no-case-declarations
@@ -67,8 +65,6 @@ export const createRepeatEvents = (eventData: EventForm) => {
       case 'yearly':
         currentDate.setFullYear(currentDate.getFullYear() + interval);
         currentDate = getAdjustRepeatDate(currentDate);
-        break;
-      default:
         break;
     }
     if (repeatEndDate && currentDate > repeatEndDate) {
