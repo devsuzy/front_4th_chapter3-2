@@ -12,7 +12,7 @@ export const createRepeatEvents = (eventData: EventForm) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const day = date.getDate();
-    const adjustedDate = new Date(date);
+    let adjustedDate = new Date(date);
 
     // 윤달 2월 29일이 반복일 경우, 2월 28일로 처리
     if (month === 1 && day === 29 && !isLeapYear(year)) {
@@ -20,12 +20,11 @@ export const createRepeatEvents = (eventData: EventForm) => {
     }
 
     // 31일이 반복일 경우, 해당 월의 마지막 일자로 처리
-    if (day === 31) {
-      const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-      if (day > lastDayOfMonth) {
-        adjustedDate.setDate(lastDayOfMonth);
-      }
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    if (day > lastDayOfMonth) {
+      adjustedDate.setDate(lastDayOfMonth);
     }
+
     return adjustedDate;
   };
 
@@ -48,9 +47,11 @@ export const createRepeatEvents = (eventData: EventForm) => {
         currentDate.setDate(currentDate.getDate() + 7 * interval);
         break;
       case 'monthly':
+        // 원래 설정된 날짜 저장 (31일인 경우 유지되도록)
         // eslint-disable-next-line no-case-declarations
-        const prevDay = currentDate.getDate();
-        currentDate.setMonth(currentDate.getMonth() + interval);
+        const originalDay = new Date(eventData.date).getDate();
+
+        currentDate.setMonth(currentDate.getMonth() + interval, 1);
 
         // eslint-disable-next-line no-case-declarations
         const lastDayOfNewMonth = new Date(
@@ -59,11 +60,25 @@ export const createRepeatEvents = (eventData: EventForm) => {
           0
         ).getDate();
 
-        currentDate.setDate(prevDay > lastDayOfNewMonth ? lastDayOfNewMonth : prevDay);
-        currentDate = getAdjustRepeatDate(currentDate);
+        // 원래 날짜 유지하되, 해당 월의 최대 날짜를 초과하면 마지막 날로 설정
+        currentDate.setDate(Math.min(originalDay, lastDayOfNewMonth));
         break;
       case 'yearly':
         currentDate.setFullYear(currentDate.getFullYear() + interval);
+
+        // 윤년이 아닌 해에서는 2월 28일로 조정
+        if (currentDate.getMonth() === 2 && currentDate.getDate() === 1) {
+          currentDate.setDate(0);
+        }
+
+        // 윤년을 다시 만나면 2월 29일로 조정
+        if (
+          currentDate.getMonth() === 1 &&
+          currentDate.getDate() === 28 &&
+          isLeapYear(currentDate.getFullYear())
+        ) {
+          currentDate.setDate(29);
+        }
         currentDate = getAdjustRepeatDate(currentDate);
         break;
     }

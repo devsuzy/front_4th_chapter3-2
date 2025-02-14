@@ -161,7 +161,8 @@ describe('createRepeatEvents', () => {
       const { result } = renderHook(() => createRepeatEvents(yearlyEvent));
       const resultDate = result.current.map((e) => e.date);
 
-      console.log(resultDate);
+      expect(resultDate).toHaveLength(2);
+      expect(resultDate).toEqual(['2024-02-29', '2025-02-28']);
     });
 
     it('다음 윤년에는 2월 29일에 정상적으로 반복된다.', () => {
@@ -181,7 +182,14 @@ describe('createRepeatEvents', () => {
       const { result } = renderHook(() => createRepeatEvents(yearlyEvent));
       const resultDate = result.current.map((e) => e.date);
 
-      console.log(resultDate);
+      expect(resultDate).toHaveLength(5);
+      expect(resultDate).toEqual([
+        '2024-02-29',
+        '2025-02-28',
+        '2026-02-28',
+        '2027-02-28',
+        '2028-02-29',
+      ]);
     });
   });
 
@@ -203,7 +211,8 @@ describe('createRepeatEvents', () => {
       const { result } = renderHook(() => createRepeatEvents(monthlyEvent));
       const resultDate = result.current.map((e) => e.date);
 
-      console.log(resultDate);
+      expect(resultDate).toHaveLength(2);
+      expect(resultDate).toEqual(['2025-01-31', '2025-02-28']);
     });
 
     it('31일이 있는 달의 경우 31일에 정상적으로 반복된다.', () => {
@@ -223,7 +232,8 @@ describe('createRepeatEvents', () => {
       const { result } = renderHook(() => createRepeatEvents(monthlyEvent));
       const resultDate = result.current.map((e) => e.date);
 
-      expect(resultDate[1]).toBe('2025-03-31');
+      expect(resultDate).toHaveLength(3);
+      expect(resultDate).toEqual(['2025-01-31', '2025-02-28', '2025-03-31']);
     });
   });
 
@@ -238,14 +248,21 @@ describe('createRepeatEvents', () => {
         description: '매월 31일 반복 일정 테스트입니다.',
         location: '사무실',
         category: '업무',
-        repeat: { type: 'monthly', interval: 1, endDate: '2025-06-30' },
+        repeat: { type: 'monthly', interval: 1, endDate: '2025-05-31' },
         notificationTime: 10,
       };
 
       const { result } = renderHook(() => createRepeatEvents(monthlyEvent));
       const resultDate = result.current.map((e) => e.date);
 
-      console.log(resultDate);
+      expect(resultDate).toHaveLength(5);
+      expect(resultDate).toEqual([
+        '2025-01-31',
+        '2025-02-28',
+        '2025-03-31',
+        '2025-04-30',
+        '2025-05-31',
+      ]);
     });
 
     it('2월 29일에 매년 반복 일정 생성이 가능하다', () => {
@@ -265,7 +282,9 @@ describe('createRepeatEvents', () => {
       const { result } = renderHook(() => createRepeatEvents(yearlyEvent));
       const resultDate = result.current.map((e) => e.date);
 
-      console.log(resultDate);
+      expect(resultDate).toEqual(
+        expect.arrayContaining(['2024-02-29', '2028-02-29', '2032-02-29'])
+      );
     });
   });
 });
