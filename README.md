@@ -93,7 +93,7 @@
 - type을 인자로 받아 해당하는 단위를 반환
 - 객체를 mapping하여 간결하고 유지보수하기 쉽게 구현
 
-```
+```javascript
 const getRepeatUnitText = (type: RepeatType) => {
   const unitMap = {
     daily: '일',
@@ -135,7 +135,7 @@ const getRepeatUnitText = (type: RepeatType) => {
 - 반복 일정 수정 및 삭제 -> 단일 일정 수정 및 삭제
 
 2. 리스트에 대한 API 연결
-```
+```typescript
   const saveRepeatEvent = async (eventData: EventForm) => {
     try {
       const repeatedEvents = createRepeatEvents(eventData);
@@ -171,7 +171,7 @@ const getRepeatUnitText = (type: RepeatType) => {
 ```
 
 3. 기본 및 필수 기능을 하는 반복 일정 이벤트를 생성하는 함수를 1차적으로 작성
-```
+```typescript
 export const createRepeatEvents = (eventData: EventForm) => {
   const repeatedEvents: EventForm[] = [];
   if (!eventData.repeat || eventData.repeat.type === 'none') {
@@ -208,7 +208,7 @@ export const createRepeatEvents = (eventData: EventForm) => {
 ```
 
 4. 필수 기능에 따른 테스트 코드 및 특수 날짜에 따른 테스트 코드 작성
-```
+```javascript
 describe('createRepeatEvents', () => {
   describe('반복 일정 테스트', () => {
       it('반복 설정이 되어있지 않으면 단일 일정을 반환한다.', () => {});
@@ -251,7 +251,7 @@ describe('createRepeatEvents', () => {
 - 윤년/윤달/31일을 처리하는 함수 부분에서 계속해서 오류가 발생하여 코드를 계속 추가하다보니 함수 분리(getAdjustRepeatDate에서 31일 처리가 안되어 사용하지 못함)가 의미 없어지고, 함수 내에서 부수효과도 많이 발생하게 되었습니다.
 - 해당 코드에 대한 피드백 부탁드립니다.😥
 
-```
+```typescript
 export const createRepeatEvents = (eventData: EventForm) => {
   const repeatedEvents: EventForm[] = [];
 
